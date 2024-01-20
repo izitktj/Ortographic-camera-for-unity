@@ -55,7 +55,7 @@ public class CameraScript : MonoBehaviour
             float MouseY = Input.GetAxis("Mouse Y");
             float MouseX = Input.GetAxis("Mouse X");
 
-            if(!InvertXAxis) MouseX = MouseX - MouseX * 2;
+            if(!InvertXAxis) MouseX = MouseX * -2;
 
             Vector3 MouseVector = new Vector3(MouseY * CameraMovSensitivity, 0.0f , MouseX * CameraMovSensitivity);
             Cam.transform.position = Cam.transform.position + MouseVector;
