@@ -7,7 +7,7 @@ public class CameraScript : MonoBehaviour
     [Header("Setup")]
     public Camera Cam;
     public GameObject Player;
-	public float MaxCameraZoom;
+    public float MaxCameraZoom;
     public float MinCameraZoom;
 
     [Header("Configs")]
@@ -33,7 +33,8 @@ public class CameraScript : MonoBehaviour
         ScrollZoom();
     }
 
-    void ScrollZoom() {
+    void ScrollZoom() 
+    {
        //Scroll zoom
         if (Input.GetAxis("Mouse ScrollWheel") < 0f && Cam.orthographicSize < MaxCameraZoom)
         {
@@ -45,7 +46,8 @@ public class CameraScript : MonoBehaviour
         }
     }
 
-    void DragCamera() {
+    void DragCamera() 
+    {
         //Move camera
         if (Input.GetMouseButton(1))
         {
@@ -67,8 +69,7 @@ public class CameraScript : MonoBehaviour
             CamPosition = Cam.transform.position; //Get last camera position
             t = 0.0f; //Reset Lerp animation
         }
-
-        //Make camera return to player
+	
         if(bDragCamera == false && t < 1.1f)
         {
             Cam.transform.position = new Vector3(Mathf.Lerp(CamPosition.x, Player.transform.position.x + DiferencePlayerAndCamera.x, t), Mathf.Lerp(CamPosition.y, Player.transform.position.y + DiferencePlayerAndCamera.y, t), Mathf.Lerp(CamPosition.z, Player.transform.position.z + DiferencePlayerAndCamera.z, t));
@@ -78,7 +79,8 @@ public class CameraScript : MonoBehaviour
 
     }
 
-    void FollowPlayer() {
+    void FollowPlayer() 
+    {
         //Check if is player dragging the camera, else, center to the player
         if(bDragCamera == false && t >= 1.1f) {
             Cam.transform.position = new Vector3(Player.transform.position.x + DiferencePlayerAndCamera.x, Player.transform.position.y + DiferencePlayerAndCamera.y, Player.transform.position.z + DiferencePlayerAndCamera.z);
