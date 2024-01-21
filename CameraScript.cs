@@ -5,10 +5,10 @@ using UnityEngine;
 public class CameraScript : MonoBehaviour
 {
     [Header("Setup")]
-    public Camera Cam;
-    public GameObject Player;
-    public float MaxCameraZoom;
-    public float MinCameraZoom;
+    [SerializeField] Camera Cam;
+    [SerializeField] GameObject Player;
+	[SerializeField] float MaxCameraZoom;
+    [SerializeField] float MinCameraZoom;
 
     [Header("Configs")]
     public bool InvertXAxis = false;
@@ -16,74 +16,73 @@ public class CameraScript : MonoBehaviour
     public float ScrollZoomSensitivity = 1.0f;
 
     Vector3 DiferencePlayerAndCamera;
-    Vector3 CamPosition = new Vector3(0.0f, 0.0f, 0.0f);
-    bool bDragCamera = false;
+    Vector3 CamPosition = Vector3.zero;
+    int CameraState = 0; //States: 0 Stopped/Not Moving, 1 Player Dragging, 2 Returning to Player
     float t = 1.1f;
 
     void Start()
     {
         //Get diference between player and camera (used to maintain the original distance from the camera)
-        DiferencePlayerAndCamera = new Vector3(Cam.transform.position.x - Player.transform.position.x, Cam.transform.position.y - Player.transform.position.y, Cam.transform.position.z - Player.transform.position.z);
+        DiferencePlayerAndCamera = Cam.transform.position - Player.transform.position;
     }
 
     void Update()
     {
-        FollowPlayer();
-        DragCamera();
+        if(CameraState == 0) FollowPlayer(); //Follow Player
+
+        if(CameraState ==  2) ReturnToPlayer(); //Make camera return to player
+
+        if(Input.GetMouseButtonUp(1)) HandleMouseUp();
+        if(Input.GetMouseButton(1)) HandleMouseDown();
+
         ScrollZoom();
+
+        StateHandler();
     }
 
-    void ScrollZoom() 
-    {
-       //Scroll zoom
-        if (Input.GetAxis("Mouse ScrollWheel") < 0f && Cam.orthographicSize < MaxCameraZoom)
-        {
-           Cam.orthographicSize = Cam.orthographicSize + 1 * ScrollZoomSensitivity;
-        }
-        else if (Input.GetAxis("Mouse ScrollWheel") > 0f && Cam.orthographicSize > MinCameraZoom)
-        {
-           Cam.orthographicSize = Cam.orthographicSize - 1 * ScrollZoomSensitivity;
-        }
+    ///Check if will be zoom in or zoom out and apply to Cam game object
+    void ScrollZoom() {
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+
+        int scrollInOut = (scrollInput < 0f && Cam.orthographicSize < MaxCameraZoom) ? 1 
+                        : (scrollInput > 0f && Cam.orthographicSize > MinCameraZoom) ? -1 : 0; //Check if is scrolling up or down
+
+        Cam.orthographicSize += scrollInOut * ScrollZoomSensitivity;
     }
 
-    void DragCamera() 
-    {
-        //Move camera
-        if (Input.GetMouseButton(1))
-        {
-            bDragCamera = true;
-            float MouseY = Input.GetAxis("Mouse Y");
-            float MouseX = Input.GetAxis("Mouse X");
+    void HandleMouseDown() {
+        StateHandler(1);
+        float MouseY = Input.GetAxis("Mouse Y");
+        float MouseX = Input.GetAxis("Mouse X");
 
-            if(!InvertXAxis) MouseX = MouseX * -2;
+        if(!InvertXAxis) MouseX = -MouseX; //Invert Mouse input
 
-            Vector3 MouseVector = new Vector3(MouseY * CameraMovSensitivity, 0.0f , MouseX * CameraMovSensitivity);
-            Cam.transform.position = Cam.transform.position + MouseVector;
-        }
-
-        //Return Camera
-
-        if (Input.GetMouseButtonUp(1))
-        {
-            bDragCamera = false;
-            CamPosition = Cam.transform.position; //Get last camera position
-            t = 0.0f; //Reset Lerp animation
-        }
-	
-        if(bDragCamera == false && t < 1.1f)
-        {
-            Cam.transform.position = new Vector3(Mathf.Lerp(CamPosition.x, Player.transform.position.x + DiferencePlayerAndCamera.x, t), Mathf.Lerp(CamPosition.y, Player.transform.position.y + DiferencePlayerAndCamera.y, t), Mathf.Lerp(CamPosition.z, Player.transform.position.z + DiferencePlayerAndCamera.z, t));
-
-            t += 0.9f * Time.deltaTime;
-        }
-
+        Vector3 MouseVector = new Vector3(MouseY * CameraMovSensitivity, 0.0f , MouseX * CameraMovSensitivity);
+        Cam.transform.position += MouseVector;
     }
 
-    void FollowPlayer() 
-    {
-        //Check if is player dragging the camera, else, center to the player
-        if(bDragCamera == false && t >= 1.1f) {
-            Cam.transform.position = new Vector3(Player.transform.position.x + DiferencePlayerAndCamera.x, Player.transform.position.y + DiferencePlayerAndCamera.y, Player.transform.position.z + DiferencePlayerAndCamera.z);
-        }
+    void HandleMouseUp() {
+        StateHandler(2);
+        CamPosition = Cam.transform.position; //Get last camera position
+        t = 0.0f; //Reset Lerp animation
+    }
+
+    ///Smooth the camera return
+    void ReturnToPlayer() {
+        StateHandler(2);
+        Cam.transform.position = Vector3.Lerp(CamPosition, Player.transform.position + DiferencePlayerAndCamera, t);
+
+        t += 0.9f * Time.deltaTime;
+    }
+
+    ///Cam object follows the GameObject "Player"
+    void FollowPlayer() {
+        Cam.transform.position = Player.transform.position + DiferencePlayerAndCamera;
+    }
+
+    ///State handler shifts the CameraState parameter, you can input (or not), and will be changed
+    void StateHandler(int _state = 3) {
+        CameraState = (DiferencePlayerAndCamera == Cam.transform.position - Player.transform.position && !Input.GetMouseButton(1)) ? 0 
+                    : (_state == 3) ? CameraState : _state;
     }
 }
