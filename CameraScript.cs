@@ -7,7 +7,7 @@ public class CameraScript : MonoBehaviour
     [Header("Setup")]
     [SerializeField] Camera Cam;
     [SerializeField] GameObject Player;
-	[SerializeField] float MaxCameraZoom;
+    [SerializeField] float MaxCameraZoom;
     [SerializeField] float MinCameraZoom;
 
     [Header("Configs")]
