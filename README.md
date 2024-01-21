@@ -1,6 +1,6 @@
 # Unity Orthographic Camera
 
-** An camera based on games like League of legends, Project Zomboid, and many others
+### Script for 3rd person ortographic camera (Like League of Legends, Project Zomboid, and many others).
 
 ## **Setup**
     1. Place the player and camera in the scene, ensuring the camera is not parented to the player.
