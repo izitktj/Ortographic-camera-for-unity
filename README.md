@@ -1,5 +1,7 @@
 # Unity Orthographic Camera
 
+** An camera based on games like League of legends, Project Zomboid, and many others
+
 ## **Setup**
     1. Place the player and camera in the scene, ensuring the camera is not parented to the player.
     2. Position the camera at the desired location, facing the player, and set it to orthographic mode.
